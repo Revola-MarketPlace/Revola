@@ -1,6 +1,6 @@
 const Dispute = require('../models/Dispute');
 const Order = require('../models/Order');
-const Payout = require('../models/Payout');
+const Payout = require('../models/Payout.js');
 const AuditLog = require('../models/AuditLog');
 const Notification = require('../models/Notification');
 const AppError = require('../utils/appError');

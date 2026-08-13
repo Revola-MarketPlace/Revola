@@ -1,6 +1,6 @@
 const Delivery = require('../models/Delivery');
 const Order = require('../models/Order');
-const Payout = require('../models/Payout');
+const Payout = require('../models/Payout.js');
 const User = require('../models/User');
 const AuditLog = require('../models/AuditLog');
 const Notification = require('../models/Notification');
