@@ -1,5 +1,21 @@
 const mongoose = require('mongoose');
 
+const pointSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: ['Point'],
+      required: true,
+      default: 'Point',
+    },
+    coordinates: {
+      type: [Number],
+      required: true,
+    },
+  },
+  { _id: false }
+);
+
 const addressSchema = new mongoose.Schema(
   {
     user: {
@@ -37,6 +53,10 @@ const addressSchema = new mongoose.Schema(
     phoneNumber: {
       type: String,
       required: true,
+    },
+    location: {
+      type: pointSchema,
+      default: undefined,
     },
     isDefault: {
       type: Boolean,
