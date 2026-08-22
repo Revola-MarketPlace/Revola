@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
 // Create short-lived access token
 const signAccessToken = (user) => {
@@ -8,11 +8,10 @@ const signAccessToken = (user) => {
       role: user.role,
       permissions: user.staffPermissions || [],
     },
-    process.env.JWT_SECRET ||
-      "adama_marketplace_jwt_secret_dev_key_2026_secure",
+    process.env.JWT_SECRET || 'adama_marketplace_jwt_secret_dev_key_2026_secure',
     {
-      expiresIn: process.env.JWT_EXPIRES_IN || "15m",
-    },
+      expiresIn: process.env.JWT_EXPIRES_IN || '15m',
+    }
   );
 };
 
@@ -22,11 +21,10 @@ const signRefreshToken = (user) => {
     {
       id: user._id,
     },
-    process.env.JWT_REFRESH_SECRET ||
-      "adama_marketplace_jwt_refresh_secret_dev_key_2026_secure",
+    process.env.JWT_REFRESH_SECRET || 'adama_marketplace_jwt_refresh_secret_dev_key_2026_secure',
     {
-      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
-    },
+      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+    }
   );
 };
 
@@ -35,7 +33,7 @@ const sendTokenCookies = (user, res) => {
   const accessToken = signAccessToken(user);
   const refreshToken = signRefreshToken(user);
 
-  const isProduction = process.env.NODE_ENV === "production";
+  const isProduction = process.env.NODE_ENV === 'production';
 
   /*
    * Production:
@@ -54,22 +52,30 @@ const sendTokenCookies = (user, res) => {
   const accessTokenCookieOptions = {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
+    sameSite: isProduction ? 'none' : 'lax',
     maxAge: 15 * 60 * 1000, // 15 minutes
-    path: "/",
+    path: '/',
   };
 
   const refreshTokenCookieOptions = {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
+    sameSite: isProduction ? 'none' : 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    path: "/",
+    path: '/',
   };
 
-  res.cookie("accessToken", accessToken, accessTokenCookieOptions);
+  res.cookie(
+    'accessToken',
+    accessToken,
+    accessTokenCookieOptions
+  );
 
-  res.cookie("refreshToken", refreshToken, refreshTokenCookieOptions);
+  res.cookie(
+    'refreshToken',
+    refreshToken,
+    refreshTokenCookieOptions
+  );
 
   return {
     accessToken,
@@ -79,17 +85,17 @@ const sendTokenCookies = (user, res) => {
 
 // Clear authentication cookies
 const clearTokenCookies = (res) => {
-  const isProduction = process.env.NODE_ENV === "production";
+  const isProduction = process.env.NODE_ENV === 'production';
 
   const cookieOptions = {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    path: "/",
+    sameSite: isProduction ? 'none' : 'lax',
+    path: '/',
   };
 
-  res.clearCookie("accessToken", cookieOptions);
-  res.clearCookie("refreshToken", cookieOptions);
+  res.clearCookie('accessToken', cookieOptions);
+  res.clearCookie('refreshToken', cookieOptions);
 };
 
 module.exports = {

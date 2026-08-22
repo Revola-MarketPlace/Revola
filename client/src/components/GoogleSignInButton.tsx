@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useRef } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface GoogleSignInButtonProps {
   onSuccessRedirect?: string;
-  text?: "continue_with" | "signup_with" | "signin_with";
+  text?: 'continue_with' | 'signup_with' | 'signin_with';
   label?: string;
 }
 
@@ -14,9 +14,9 @@ declare global {
   }
 }
 
-const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
-  onSuccessRedirect = "/",
-  text = "continue_with",
+const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ 
+  onSuccessRedirect = '/',
+  text = 'continue_with',
   label,
 }) => {
   const { googleLogin } = useAuth();
@@ -25,7 +25,7 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
   const [gisLoaded, setGisLoaded] = useState(false);
   const btnContainerRef = useRef<HTMLDivElement>(null);
 
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
   useEffect(() => {
     if (!googleClientId) {
@@ -33,19 +33,17 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
     }
 
     // Load Google Identity Services script if not present
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       if (window.google?.accounts?.id) {
         setGisLoaded(true);
         initGoogle();
       } else {
-        const scriptId = "google-gsi-client-script";
-        let script = document.getElementById(
-          scriptId,
-        ) as HTMLScriptElement | null;
+        const scriptId = 'google-gsi-client-script';
+        let script = document.getElementById(scriptId) as HTMLScriptElement | null;
         if (!script) {
-          script = document.createElement("script");
+          script = document.createElement('script');
           script.id = scriptId;
-          script.src = "https://accounts.google.com/gsi/client";
+          script.src = 'https://accounts.google.com/gsi/client';
           script.async = true;
           script.defer = true;
           document.body.appendChild(script);
@@ -59,11 +57,7 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
   }, [googleClientId]);
 
   const initGoogle = () => {
-    if (
-      window.google?.accounts?.id &&
-      googleClientId &&
-      btnContainerRef.current
-    ) {
+    if (window.google?.accounts?.id && googleClientId && btnContainerRef.current) {
       try {
         window.google.accounts.id.initialize({
           client_id: googleClientId,
@@ -72,17 +66,17 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
           cancel_on_tap_outside: true,
         });
 
-        btnContainerRef.current.innerHTML = "";
+        btnContainerRef.current.innerHTML = '';
         window.google.accounts.id.renderButton(btnContainerRef.current, {
-          theme: "outline",
-          size: "large",
+          theme: 'outline',
+          size: 'large',
           width: 320,
           text: text,
-          shape: "pill",
-          logo_alignment: "left",
+          shape: 'pill',
+          logo_alignment: 'left',
         });
       } catch (err) {
-        console.error("GIS initialization error:", err);
+        console.error('GIS initialization error:', err);
       }
     }
   };
@@ -94,19 +88,19 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
       const result = await googleLogin(response.credential);
       if (result?.user) {
         if (result.needsRoleSelection || result.isNewUser) {
-          navigate("/role-selection");
-        } else if (result.user.role === "SELLER") {
-          navigate("/seller-dashboard");
-        } else if (result.user.role === "ADMIN") {
-          navigate("/admin-dashboard");
-        } else if (result.user.role === "STAFF") {
-          navigate("/staff-dashboard");
+          navigate('/role-selection');
+        } else if (result.user.role === 'SELLER') {
+          navigate('/seller-dashboard');
+        } else if (result.user.role === 'ADMIN') {
+          navigate('/admin-dashboard');
+        } else if (result.user.role === 'STAFF') {
+          navigate('/staff-dashboard');
         } else {
           navigate(onSuccessRedirect);
         }
       }
     } catch (error) {
-      console.error("Google login error:", error);
+      console.error('Google login error:', error);
     } finally {
       setLoading(false);
     }
@@ -114,9 +108,7 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
 
   const handleManualClick = () => {
     if (!googleClientId) {
-      alert(
-        "Google Sign-In requires VITE_GOOGLE_CLIENT_ID to be configured in your environment.",
-      );
+      alert('Google Sign-In requires VITE_GOOGLE_CLIENT_ID to be configured in your environment.');
       return;
     }
     if (window.google?.accounts?.id) {
@@ -128,10 +120,7 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
     <div className="w-full flex flex-col items-center gap-2">
       {/* Container for Official Google Rendered Button */}
       {googleClientId && (
-        <div
-          ref={btnContainerRef}
-          className="w-full min-h-[44px] flex items-center justify-center"
-        ></div>
+        <div ref={btnContainerRef} className="w-full min-h-[44px] flex items-center justify-center"></div>
       )}
 
       {/* Fallback button when GIS is not yet loaded, loading, or client ID is missing */}
@@ -160,9 +149,7 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
             />
           </svg>
-          <span>
-            {loading ? "Authenticating with Google..." : "Continue with Google"}
-          </span>
+          <span>{loading ? 'Authenticating with Google...' : 'Continue with Google'}</span>
         </button>
       )}
     </div>

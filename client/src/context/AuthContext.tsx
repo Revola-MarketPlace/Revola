@@ -1,16 +1,15 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import api from "../services/api";
-import { useToast } from "./ToastContext";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import api from '../services/api';
+import { useToast } from './ToastContext';
 
 export interface User {
   _id: string;
   name: string;
-  username?: string;
   email: string;
   avatar?: string;
   phoneNumber?: string;
-  role: "BUYER" | "SELLER" | "STAFF" | "ADMIN";
-  roles?: ("BUYER" | "SELLER" | "STAFF" | "ADMIN")[];
+  role: 'BUYER' | 'SELLER' | 'STAFF' | 'ADMIN';
+  roles?: ('BUYER' | 'SELLER' | 'STAFF' | 'ADMIN')[];
   staffPermissions?: string[];
   isSellerApproved?: boolean;
   sellerProfile?: {
@@ -23,7 +22,7 @@ export interface User {
       coordinates: [number, number];
       address?: string;
     };
-    approvalStatus?: "PENDING_APPROVAL" | "APPROVED" | "REJECTED" | "SUSPENDED";
+    approvalStatus?: 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
     rejectionReason?: string;
   };
   buyerProfile?: {
@@ -41,31 +40,10 @@ interface GoogleAuthResult {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (identifier: string, password: string) => Promise<User | null>;
-  register: (
-    name: string,
-    email: string,
-    password: string,
-    role: string,
-    username?: string,
-  ) => Promise<User | null>;
-  googleLogin: (
-    credential?: string,
-    accessToken?: string,
-    role?: string,
-  ) => Promise<GoogleAuthResult>;
+  login: (email: string, password: string) => Promise<User | null>;
+  register: (name: string, email: string, password: string, role: string) => Promise<User | null>;
+  googleLogin: (credential?: string, accessToken?: string) => Promise<GoogleAuthResult>;
   completeOnboarding: (data: any) => Promise<User | null>;
-  updateProfile: (data: {
-    name?: string;
-    username?: string;
-    phoneNumber?: string;
-    avatar?: string;
-  }) => Promise<User | null>;
-  uploadAvatar: (file: File) => Promise<string | null>;
-  updatePassword: (
-    currentPassword: string,
-    newPassword: string,
-  ) => Promise<boolean>;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
@@ -73,16 +51,14 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { showToast } = useToast();
 
   const checkAuth = async () => {
     try {
-      const response = await api.get("/auth/me");
+      const response = await api.get('/auth/me');
       if (response.data.success) {
         setUser(response.data.user);
       } else {
@@ -102,168 +78,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const handleAuthExpired = () => {
       setUser((prevUser) => {
         if (prevUser !== null) {
-          showToast(
-            "Your session has expired. Please log in again.",
-            "warning",
-          );
+          showToast('Your session has expired. Please log in again.', 'warning');
         }
         return null;
       });
     };
 
-    window.addEventListener("auth-expired", handleAuthExpired);
+    window.addEventListener('auth-expired', handleAuthExpired);
     return () => {
-      window.removeEventListener("auth-expired", handleAuthExpired);
+      window.removeEventListener('auth-expired', handleAuthExpired);
     };
   }, [showToast]);
 
-  const login = async (
-    identifier: string,
-    password: string,
-  ): Promise<User | null> => {
+  const login = async (email: string, password: string): Promise<User | null> => {
     try {
-      const response = await api.post("/auth/login", {
-        identifier,
-        email: identifier,
-        password,
-      });
+      const response = await api.post('/auth/login', { email, password });
       if (response.data.success) {
         const loggedInUser: User = response.data.user;
         setUser(loggedInUser);
-        showToast(
-          `Welcome back, ${loggedInUser.name || loggedInUser.username}!`,
-          "success",
-        );
+        showToast(`Welcome back, ${loggedInUser.name}!`, 'success');
         return loggedInUser;
       }
       return null;
     } catch (error: any) {
-      const msg =
-        error.response?.data?.message ||
-        "Login failed. Check your username/email and password.";
-      showToast(msg, "error");
+      const msg = error.response?.data?.message || 'Login failed. Check your credentials.';
+      showToast(msg, 'error');
       return null;
     }
   };
 
-  const register = async (
-    name: string,
-    email: string,
-    password: string,
-    role: string,
-    username?: string,
-  ): Promise<User | null> => {
+  const register = async (name: string, email: string, password: string, role: string): Promise<User | null> => {
     try {
-      const cleanUsername = username?.trim() || email.split("@")[0];
-      const response = await api.post("/auth/register", {
-        name: name.trim() || cleanUsername,
-        username: cleanUsername,
-        email: email.trim().toLowerCase(),
-        password,
-        role,
-      });
+      const response = await api.post('/auth/register', { name, email, password, role });
       if (response.data.success) {
         const newUser: User = response.data.user;
         setUser(newUser);
-        showToast(
-          `Account created successfully! Welcome, @${newUser.username || cleanUsername}.`,
-          "success",
-        );
+        showToast('Registration successful! Welcome aboard.', 'success');
         return newUser;
       }
       return null;
     } catch (error: any) {
-      const msg =
-        error.response?.data?.message || "Registration failed. Try again.";
-      showToast(msg, "error");
+      const msg = error.response?.data?.message || 'Registration failed. Try again.';
+      showToast(msg, 'error');
       return null;
     }
   };
 
-  const updateProfile = async (data: {
-    name?: string;
-    username?: string;
-    phoneNumber?: string;
-    avatar?: string;
-  }): Promise<User | null> => {
+  const googleLogin = async (credential?: string, accessToken?: string): Promise<GoogleAuthResult> => {
     try {
-      const response = await api.put("/auth/updatedetails", data);
-      if (response.data.success) {
-        const updated: User = response.data.user;
-        setUser(updated);
-        showToast("Profile updated successfully!", "success");
-        return updated;
-      }
-      return null;
-    } catch (error: any) {
-      const msg = error.response?.data?.message || "Failed to update profile.";
-      showToast(msg, "error");
-      return null;
-    }
-  };
-
-  const uploadAvatar = async (file: File): Promise<string | null> => {
-    try {
-      const formData = new FormData();
-      formData.append("avatar", file);
-      const response = await api.post("/auth/avatar", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      if (response.data.success) {
-        const avatarUrl = response.data.avatar || response.data.user?.avatar;
-        if (response.data.user) {
-          setUser(response.data.user);
-        } else if (avatarUrl) {
-          setUser((prev) => (prev ? { ...prev, avatar: avatarUrl } : prev));
-        }
-        showToast("Profile photo updated successfully!", "success");
-        return avatarUrl;
-      }
-      return null;
-    } catch (error: any) {
-      const msg =
-        error.response?.data?.message || "Failed to upload profile photo.";
-      showToast(msg, "error");
-      return null;
-    }
-  };
-
-  const updatePassword = async (
-    currentPassword: string,
-    newPassword: string,
-  ): Promise<boolean> => {
-    try {
-      const response = await api.put("/auth/updatepassword", {
-        currentPassword,
-        newPassword,
-      });
-      if (response.data.success) {
-        showToast("Password changed successfully!", "success");
-        return true;
-      }
-      return false;
-    } catch (error: any) {
-      const msg = error.response?.data?.message || "Failed to update password.";
-      showToast(msg, "error");
-      return false;
-    }
-  };
-
-  const googleLogin = async (
-    credential?: string,
-    accessToken?: string,
-    role?: string,
-  ): Promise<GoogleAuthResult> => {
-    try {
-      const response = await api.post("/auth/google", {
-        credential,
-        accessToken,
-        role,
-      });
+      const response = await api.post('/auth/google', { credential, accessToken });
       if (response.data.success) {
         const loggedUser: User = response.data.user;
         setUser(loggedUser);
-        showToast(`Signed in with Google as ${loggedUser.name}!`, "success");
+        showToast(`Signed in with Google as ${loggedUser.name}!`, 'success');
         return {
           user: loggedUser,
           isNewUser: response.data.isNewUser,
@@ -272,41 +139,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
       return { user: null };
     } catch (error: any) {
-      const msg =
-        error.response?.data?.message ||
-        "Google sign-in failed. Please try again.";
-      showToast(msg, "error");
+      const msg = error.response?.data?.message || 'Google sign-in failed. Please try again.';
+      showToast(msg, 'error');
       return { user: null };
     }
   };
 
   const completeOnboarding = async (data: any): Promise<User | null> => {
     try {
-      const response = await api.post("/auth/onboarding", data);
+      const response = await api.post('/auth/onboarding', data);
       if (response.data.success) {
         const updated: User = response.data.user;
         setUser(updated);
-        showToast("Profile setup completed successfully!", "success");
+        showToast('Profile setup completed successfully!', 'success');
         return updated;
       }
       return null;
     } catch (error: any) {
-      const msg =
-        error.response?.data?.message ||
-        "Failed to complete profile onboarding.";
-      showToast(msg, "error");
+      const msg = error.response?.data?.message || 'Failed to complete profile onboarding.';
+      showToast(msg, 'error');
       throw error;
     }
   };
 
   const logout = async () => {
     try {
-      await api.post("/auth/logout");
+      await api.post('/auth/logout');
     } catch (error) {
       // Proceed with local logout regardless of API failure
     } finally {
       setUser(null);
-      showToast("Logged out successfully.", "info");
+      showToast('Logged out successfully.', 'info');
     }
   };
 
@@ -319,9 +182,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         register,
         googleLogin,
         completeOnboarding,
-        updateProfile,
-        uploadAvatar,
-        updatePassword,
         setUser,
         logout,
         checkAuth,
@@ -335,7 +195,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
+

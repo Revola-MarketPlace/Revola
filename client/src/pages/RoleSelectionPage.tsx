@@ -1,18 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { useToast } from "../context/ToastContext";
-import api from "../services/api";
-import LocationPickerModal from "../components/LocationPickerModal";
-import {
-  ShoppingBag,
-  Store,
-  MapPin,
-  Building2,
-  ShieldCheck,
-  ArrowRight,
-  CheckCircle2,
-} from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
+import api from '../services/api';
+import LocationPickerModal from '../components/LocationPickerModal';
+import { ShoppingBag, Store, MapPin, Building2, ShieldCheck, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 interface Category {
   _id: string;
@@ -24,33 +16,25 @@ const RoleSelectionPage: React.FC = () => {
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const [selectedRole, setSelectedRole] = useState<"BUYER" | "SELLER">("BUYER");
-  const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || "");
+  const [selectedRole, setSelectedRole] = useState<'BUYER' | 'SELLER'>('BUYER');
+  const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || '');
   const [categories, setCategories] = useState<Category[]>([]);
 
   // Buyer Form State
-  const [buyerStreetAddress, setBuyerStreetAddress] = useState("");
-  const [buyerSubCity, setBuyerSubCity] = useState("");
-  const [buyerLocation, setBuyerLocation] = useState<{
-    latitude: number;
-    longitude: number;
-    address?: string;
-  } | null>(null);
+  const [buyerStreetAddress, setBuyerStreetAddress] = useState('');
+  const [buyerSubCity, setBuyerSubCity] = useState('');
+  const [buyerLocation, setBuyerLocation] = useState<{ latitude: number; longitude: number; address?: string } | null>(null);
   const [isBuyerMapModalOpen, setIsBuyerMapModalOpen] = useState(false);
 
   // Seller Form State
-  const [shopName, setShopName] = useState("");
-  const [shopDescription, setShopDescription] = useState("");
-  const [shopAddress, setShopAddress] = useState("");
+  const [shopName, setShopName] = useState('');
+  const [shopDescription, setShopDescription] = useState('');
+  const [shopAddress, setShopAddress] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [bankName, setBankName] = useState("Commercial Bank of Ethiopia (CBE)");
-  const [bankAccountHolder, setBankAccountHolder] = useState(user?.name || "");
-  const [bankAccountNumber, setBankAccountNumber] = useState("");
-  const [shopLocation, setShopLocation] = useState<{
-    latitude: number;
-    longitude: number;
-    address?: string;
-  } | null>(null);
+  const [bankName, setBankName] = useState('Commercial Bank of Ethiopia (CBE)');
+  const [bankAccountHolder, setBankAccountHolder] = useState(user?.name || '');
+  const [bankAccountNumber, setBankAccountNumber] = useState('');
+  const [shopLocation, setShopLocation] = useState<{ latitude: number; longitude: number; address?: string } | null>(null);
 
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -59,12 +43,12 @@ const RoleSelectionPage: React.FC = () => {
     // Fetch categories for seller selection
     const fetchCategories = async () => {
       try {
-        const res = await api.get("/categories");
+        const res = await api.get('/categories');
         if (res.data.success) {
           setCategories(res.data.categories);
         }
       } catch (err) {
-        console.error("Failed to load categories", err);
+        console.error('Failed to load categories', err);
       }
     };
     fetchCategories();
@@ -72,33 +56,24 @@ const RoleSelectionPage: React.FC = () => {
 
   const handleCategoryToggle = (id: string) => {
     setSelectedCategories((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id],
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
     );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phoneNumber.trim()) {
-      showToast(
-        "Please provide a mobile phone number for verification and contact.",
-        "error",
-      );
+      showToast('Please provide a mobile phone number for verification and contact.', 'error');
       return;
     }
 
-    if (selectedRole === "SELLER") {
+    if (selectedRole === 'SELLER') {
       if (!shopName.trim() || !shopAddress.trim()) {
-        showToast(
-          "Please provide your shop/business name and address.",
-          "error",
-        );
+        showToast('Please provide your shop/business name and address.', 'error');
         return;
       }
       if (!bankAccountNumber.trim()) {
-        showToast(
-          "Please provide your bank account number for escrow payouts.",
-          "error",
-        );
+        showToast('Please provide your bank account number for escrow payouts.', 'error');
         return;
       }
     }
@@ -110,7 +85,7 @@ const RoleSelectionPage: React.FC = () => {
         phoneNumber: phoneNumber.trim(),
       };
 
-      if (selectedRole === "SELLER") {
+      if (selectedRole === 'SELLER') {
         payload.shopName = shopName.trim();
         payload.shopDescription = shopDescription.trim();
         payload.shopAddress = shopAddress.trim();
@@ -125,7 +100,7 @@ const RoleSelectionPage: React.FC = () => {
       } else {
         payload.streetAddress = buyerStreetAddress.trim();
         payload.subCity = buyerSubCity.trim();
-        payload.city = "Adama";
+        payload.city = 'Adama';
         if (buyerLocation) {
           payload.latitude = buyerLocation.latitude;
           payload.longitude = buyerLocation.longitude;
@@ -134,20 +109,16 @@ const RoleSelectionPage: React.FC = () => {
 
       await completeOnboarding(payload);
 
-      if (selectedRole === "SELLER") {
-        showToast(
-          "Seller profile submitted! Awaiting administrator approval.",
-          "info",
-        );
-        navigate("/seller-dashboard");
+      if (selectedRole === 'SELLER') {
+        showToast('Seller profile submitted! Awaiting administrator approval.', 'info');
+        navigate('/seller-dashboard');
       } else {
-        showToast("Welcome to AdaMaterials Marketplace!", "success");
-        navigate("/products");
+        showToast('Welcome to AdaMaterials Marketplace!', 'success');
+        navigate('/products');
       }
     } catch (err: any) {
-      const msg =
-        err.response?.data?.message || "Failed to complete profile onboarding.";
-      showToast(msg, "error");
+      const msg = err.response?.data?.message || 'Failed to complete profile onboarding.';
+      showToast(msg, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -163,12 +134,8 @@ const RoleSelectionPage: React.FC = () => {
               <Store className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-white">
-                Welcome, {user?.name || "Friend"}!
-              </h1>
-              <p className="text-xs text-slate-400 font-medium">
-                How would you like to participate in AdaMaterials?
-              </p>
+              <h1 className="text-2xl font-black tracking-tight text-white">Welcome, {user?.name || 'Friend'}!</h1>
+              <p className="text-xs text-slate-400 font-medium">How would you like to participate in AdaMaterials?</p>
             </div>
           </div>
         </div>
@@ -183,53 +150,43 @@ const RoleSelectionPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Buyer Card */}
               <div
-                onClick={() => setSelectedRole("BUYER")}
+                onClick={() => setSelectedRole('BUYER')}
                 className={`p-5 rounded-2xl border-2 cursor-pointer transition-all ${
-                  selectedRole === "BUYER"
-                    ? "border-primary-600 bg-primary-50/50 shadow-md ring-2 ring-primary-600/20"
-                    : "border-slate-200 hover:border-slate-300 bg-white"
+                  selectedRole === 'BUYER'
+                    ? 'border-primary-600 bg-primary-50/50 shadow-md ring-2 ring-primary-600/20'
+                    : 'border-slate-200 hover:border-slate-300 bg-white'
                 }`}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="p-3 bg-primary-100 text-primary-700 rounded-xl">
                     <ShoppingBag className="w-6 h-6" />
                   </div>
-                  {selectedRole === "BUYER" && (
-                    <CheckCircle2 className="w-5 h-5 text-primary-600" />
-                  )}
+                  {selectedRole === 'BUYER' && <CheckCircle2 className="w-5 h-5 text-primary-600" />}
                 </div>
-                <h3 className="font-bold text-base text-slate-900">
-                  I want to Buy Materials
-                </h3>
+                <h3 className="font-bold text-base text-slate-900">I want to Buy Materials</h3>
                 <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                  Browse local salvaged construction materials, scrap metals,
-                  equipment, and order with door delivery in Adama.
+                  Browse local salvaged construction materials, scrap metals, equipment, and order with door delivery in Adama.
                 </p>
               </div>
 
               {/* Seller Card */}
               <div
-                onClick={() => setSelectedRole("SELLER")}
+                onClick={() => setSelectedRole('SELLER')}
                 className={`p-5 rounded-2xl border-2 cursor-pointer transition-all ${
-                  selectedRole === "SELLER"
-                    ? "border-amber-500 bg-amber-50/50 shadow-md ring-2 ring-amber-500/20"
-                    : "border-slate-200 hover:border-slate-300 bg-white"
+                  selectedRole === 'SELLER'
+                    ? 'border-amber-500 bg-amber-50/50 shadow-md ring-2 ring-amber-500/20'
+                    : 'border-slate-200 hover:border-slate-300 bg-white'
                 }`}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="p-3 bg-amber-100 text-amber-800 rounded-xl">
                     <Store className="w-6 h-6" />
                   </div>
-                  {selectedRole === "SELLER" && (
-                    <CheckCircle2 className="w-5 h-5 text-amber-600" />
-                  )}
+                  {selectedRole === 'SELLER' && <CheckCircle2 className="w-5 h-5 text-amber-600" />}
                 </div>
-                <h3 className="font-bold text-base text-slate-900">
-                  I want to Sell Materials
-                </h3>
+                <h3 className="font-bold text-base text-slate-900">I want to Sell Materials</h3>
                 <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                  Register your shop/depot in Adama, list reusable surplus or
-                  scrap materials, and receive direct bank payouts.
+                  Register your shop/depot in Adama, list reusable surplus or scrap materials, and receive direct bank payouts.
                 </p>
               </div>
             </div>
@@ -248,14 +205,11 @@ const RoleSelectionPage: React.FC = () => {
               placeholder="+251 9XX XXX XXX"
               className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-primary-500 focus:outline-none text-sm font-medium text-slate-800"
             />
-            <p className="text-[11px] text-slate-400 mt-1">
-              Used for order status notifications, delivery courier contact, and
-              payout alerts.
-            </p>
+            <p className="text-[11px] text-slate-400 mt-1">Used for order status notifications, delivery courier contact, and payout alerts.</p>
           </div>
 
           {/* Buyer Essential Delivery Fields */}
-          {selectedRole === "BUYER" && (
+          {selectedRole === 'BUYER' && (
             <div className="space-y-4 pt-6 border-t border-slate-200">
               <div className="flex items-center gap-2 text-slate-900 font-bold text-base">
                 <MapPin className="w-5 h-5 text-primary-600" />
@@ -306,13 +260,11 @@ const RoleSelectionPage: React.FC = () => {
                       <MapPin className="w-4 h-4" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-slate-900">
-                        Exact Delivery Pin on Map
-                      </h4>
+                      <h4 className="text-xs font-bold text-slate-900">Exact Delivery Pin on Map</h4>
                       <p className="text-[11px] text-slate-600">
                         {buyerLocation
                           ? `Location set: (${buyerLocation.latitude.toFixed(4)}, ${buyerLocation.longitude.toFixed(4)})`
-                          : "Optional now: Pin your exact delivery spot for courier logistics."}
+                          : 'Optional now: Pin your exact delivery spot for courier logistics.'}
                       </p>
                     </div>
                   </div>
@@ -321,7 +273,7 @@ const RoleSelectionPage: React.FC = () => {
                     onClick={() => setIsBuyerMapModalOpen(true)}
                     className="px-3.5 py-2 bg-white hover:bg-slate-50 border border-primary-300 text-primary-800 rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
                   >
-                    {buyerLocation ? "Change Pin" : "Set Pin on Map"}
+                    {buyerLocation ? 'Change Pin' : 'Set Pin on Map'}
                   </button>
                 </div>
               </div>
@@ -329,7 +281,7 @@ const RoleSelectionPage: React.FC = () => {
           )}
 
           {/* Additional Seller Fields */}
-          {selectedRole === "SELLER" && (
+          {selectedRole === 'SELLER' && (
             <div className="space-y-6 pt-6 border-t border-slate-200">
               <div className="flex items-center gap-2 text-slate-900 font-bold text-base">
                 <Building2 className="w-5 h-5 text-amber-600" />
@@ -339,8 +291,7 @@ const RoleSelectionPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-600 mb-1">
-                    Shop / Business Name{" "}
-                    <span className="text-rose-500">*</span>
+                    Shop / Business Name <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -353,8 +304,7 @@ const RoleSelectionPage: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-600 mb-1">
-                    Physical Shop Address{" "}
-                    <span className="text-rose-500">*</span>
+                    Physical Shop Address <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -368,9 +318,7 @@ const RoleSelectionPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">
-                  Business Description
-                </label>
+                <label className="block text-xs font-bold text-slate-600 mb-1">Business Description</label>
                 <textarea
                   rows={2}
                   value={shopDescription}
@@ -383,9 +331,7 @@ const RoleSelectionPage: React.FC = () => {
               {/* Categories Sold */}
               {categories.length > 0 && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-2">
-                    Material Categories Sold
-                  </label>
+                  <label className="block text-xs font-bold text-slate-600 mb-2">Material Categories Sold</label>
                   <div className="flex flex-wrap gap-2">
                     {categories.map((c) => {
                       const isSelected = selectedCategories.includes(c._id);
@@ -396,8 +342,8 @@ const RoleSelectionPage: React.FC = () => {
                           onClick={() => handleCategoryToggle(c._id)}
                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                             isSelected
-                              ? "bg-amber-600 text-white shadow-xs"
-                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                              ? 'bg-amber-600 text-white shadow-xs'
+                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                           }`}
                         >
                           {c.name}
@@ -416,13 +362,11 @@ const RoleSelectionPage: React.FC = () => {
                       <MapPin className="w-4 h-4" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-slate-900">
-                        Shop Location on Leaflet Map
-                      </h4>
+                      <h4 className="text-xs font-bold text-slate-900">Shop Location on Leaflet Map</h4>
                       <p className="text-[11px] text-slate-600">
                         {shopLocation
                           ? `Location set: (${shopLocation.latitude.toFixed(4)}, ${shopLocation.longitude.toFixed(4)})`
-                          : "Optional now: Pin your exact depot location in Adama City."}
+                          : 'Optional now: Pin your exact depot location in Adama City.'}
                       </p>
                     </div>
                   </div>
@@ -431,7 +375,7 @@ const RoleSelectionPage: React.FC = () => {
                     onClick={() => setIsMapModalOpen(true)}
                     className="px-3.5 py-2 bg-white hover:bg-slate-50 border border-amber-300 text-amber-800 rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
                   >
-                    {shopLocation ? "Change Pin" : "Set Shop Location"}
+                    {shopLocation ? 'Change Pin' : 'Set Shop Location'}
                   </button>
                 </div>
               </div>
@@ -441,22 +385,16 @@ const RoleSelectionPage: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5 text-amber-400" />
                   <div>
-                    <h4 className="text-sm font-bold text-white">
-                      Private Bank Details for Payouts
-                    </h4>
+                    <h4 className="text-sm font-bold text-white">Private Bank Details for Payouts</h4>
                     <p className="text-[11px] text-slate-400">
-                      Private & Secure. Never displayed publicly to buyers. Used
-                      exclusively by platform finance staff for verified escrow
-                      payouts.
+                      Private & Secure. Never displayed publicly to buyers. Used exclusively by platform finance staff for verified escrow payouts.
                     </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-300 mb-1">
-                      Bank Name
-                    </label>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1">Bank Name</label>
                     <select
                       value={bankName}
                       onChange={(e) => setBankName(e.target.value)}
@@ -473,9 +411,7 @@ const RoleSelectionPage: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-300 mb-1">
-                      Account Holder Name
-                    </label>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1">Account Holder Name</label>
                     <input
                       type="text"
                       required
@@ -485,9 +421,7 @@ const RoleSelectionPage: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-300 mb-1">
-                      Account Number
-                    </label>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1">Account Number</label>
                     <input
                       type="text"
                       required
@@ -508,11 +442,7 @@ const RoleSelectionPage: React.FC = () => {
             disabled={submitting}
             className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
           >
-            <span>
-              {submitting
-                ? "Setting up profile..."
-                : "Complete Profile & Get Started"}
-            </span>
+            <span>{submitting ? 'Setting up profile...' : 'Complete Profile & Get Started'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
@@ -524,10 +454,7 @@ const RoleSelectionPage: React.FC = () => {
         onClose={() => setIsMapModalOpen(false)}
         onSelectLocation={(loc) => {
           setShopLocation({ latitude: loc.latitude, longitude: loc.longitude });
-          showToast(
-            "Shop coordinates saved inside Adama service area!",
-            "success",
-          );
+          showToast('Shop coordinates saved inside Adama service area!', 'success');
         }}
         title="Set Shop Pin Location"
         subtitle="Place the marker on your physical depot in Adama City"
@@ -538,18 +465,11 @@ const RoleSelectionPage: React.FC = () => {
         isOpen={isBuyerMapModalOpen}
         onClose={() => setIsBuyerMapModalOpen(false)}
         onSelectLocation={(loc) => {
-          setBuyerLocation({
-            latitude: loc.latitude,
-            longitude: loc.longitude,
-            address: loc.address,
-          });
+          setBuyerLocation({ latitude: loc.latitude, longitude: loc.longitude, address: loc.address });
           if (loc.address && !buyerStreetAddress) {
             setBuyerStreetAddress(loc.address);
           }
-          showToast(
-            "Delivery pin coordinates saved inside Adama service area!",
-            "success",
-          );
+          showToast('Delivery pin coordinates saved inside Adama service area!', 'success');
         }}
         title="Set Delivery Pin Location"
         subtitle="Place the marker where couriers should deliver materials in Adama City"
