@@ -1,3 +1,3 @@
-# Utility Functions
+# TypeScript Types
 
-Formatting, geocoding helpers, and validation utilities.
+Shared interfaces and domain type models.
