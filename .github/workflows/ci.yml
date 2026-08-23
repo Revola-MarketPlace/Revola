@@ -1,0 +1,31 @@
+name: Revola CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint-and-audit:
+    name: Lint & Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: |
+            client/package.json
+            server/package.json
+
+      - name: Security Scan for Secrets
+        run: |
+          echo "Scanning repository for unauthorized credentials..."
+          ! grep -rn "CHASECK_TEST-[0-9a-zA-Z]" . --exclude-dir=node_modules || exit 1
+          ! grep -rn "mongodb+srv://.*:.*@" . --exclude-dir=node_modules || exit 1
+          echo "Secret scan passed."

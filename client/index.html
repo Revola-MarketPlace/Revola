@@ -2,19 +2,40 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Adama City's premium managed marketplace for buying, selling, and recycling usable materials. Secure payments and prompt deliveries." />
-    <meta name="keywords" content="Adama, Ethiopia, Marketplace, Usable Materials, Recycle, Scrap Metal, Wood Pallets, Plastic Bottles" />
+    <meta name="description" content="Revola is the premier sustainable marketplace for buying, selling, and recycling usable materials. Secure payments and verified deliveries." />
+    <meta name="keywords" content="Revola, Marketplace, Usable Materials, Recycle, Scrap Metal, Wood Pallets, Plastic, Sustainable Commerce" />
     
-    <title>Adama Materials - Managed Marketplace</title>
+    <title>Revola — Every Good Thing Deserves a Second Life</title>
     
     <!-- Premium Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <!-- Theme Initialization Script (prevents theme flash on reload) -->
+    <script>
+      (function() {
+        try {
+          var mode = localStorage.getItem('revola_appearance_mode') || 'light';
+          var isDark = mode === 'dark' || (mode === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body class="bg-slate-50 text-slate-900 font-sans min-h-screen">
+  <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans min-h-screen transition-colors duration-200">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
